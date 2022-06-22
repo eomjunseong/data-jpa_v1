@@ -1,16 +1,19 @@
 package study.datajpa.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member,Long> {
+public interface MemberRepository extends JpaRepository<Member,Long> ,MemberRepositoryCustom{
 
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
 
@@ -41,5 +44,51 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
     List<Member> findListByUsername(String name); //컬렉션 --없으면 empty 컬렉션 반환함, null X
     Member findMemberByUsername(String name); //단건 -- 없으면 null O
     Optional<Member> findOptionalByUsername(String name); //단건 Optional  -- 걍 Null일 수 도 있으니 Optional 쓰셈
+
+//    페이징
+//    Pageable : interface
+//    PageRequest : 구현체
+
+    Page<Member> findByAge(int age, Pageable pageable);
+//    Slice<Member> findByAge(int age, Pageable pageable);
+
+
+    @Query(value = "select m from Member m",
+            countQuery = "select count(m.username) from Member m")
+    Page<Member> findMemberAllCountBy(Pageable pageable);
+
+// 벌크 수정
+//    @Modifying //executeUpdate(); 효과 - 변경 효과
+    @Modifying(clearAutomatically = true) //벌크 연산 나가고 em 자동으로 클리어 시킴
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlusB(@Param("age") int age);
+
+    // 연관된 엔티티 한번에 조회
+    @Query("select m from Member m  join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+
+    //공통 메서드 오버라이드
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    //JPQL + 엔티티 그래프
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    //메서드 이름으로 쿼리에서 특히 편리하다.
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findEntityGraphByUsername(String username);
+
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String member1);
+
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+
+
 
 }

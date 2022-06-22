@@ -5,6 +5,14 @@ import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
+
+
+
+
+
+
+
+
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access= AccessLevel.PROTECTED)
@@ -12,7 +20,8 @@ import javax.persistence.*;
 @NamedQuery(
         name="Member.findByUsername",
         query="select m from Member m where m.username = :username")
-public class Member {
+public class Member extends BaseEntity{
+//public class Member extends JpaBaseEntity{ --> 순수 jpa auditing
 
     @Id @GeneratedValue
     @Column(name="memebr_id")
@@ -20,7 +29,7 @@ public class Member {
     private String username;
     private int age;
 
-//    @ManyToOne(cascade = CascadeType.ALL)
+    //    @ManyToOne(cascade = CascadeType.ALL)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="team_id")
     private Team team;
@@ -44,4 +53,6 @@ public class Member {
         this.team = team;
         team.getMembers().add(this);
     }
+
+
 }
