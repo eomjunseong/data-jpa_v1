@@ -20,6 +20,7 @@ import javax.persistence.*;
 @NamedQuery(
         name="Member.findByUsername",
         query="select m from Member m where m.username = :username")
+@NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
 public class Member extends BaseEntity{
 //public class Member extends JpaBaseEntity{ --> 순수 jpa auditing
 

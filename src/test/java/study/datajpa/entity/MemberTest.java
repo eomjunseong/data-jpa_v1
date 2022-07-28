@@ -52,6 +52,10 @@ class MemberTest {
         List<Member> members = em.createQuery("select m from Member m", Member.class).getResultList();
 
 
+        System.out.println("--------------------------------");
+
+
+
         for (Member member : members) {
             System.out.println("member=" + member);
             System.out.println("-> member.team=" + member.getTeam());

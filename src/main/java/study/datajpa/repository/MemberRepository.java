@@ -73,15 +73,18 @@ public interface MemberRepository extends JpaRepository<Member,Long> ,MemberRepo
     @EntityGraph(attributePaths = {"team"})
     List<Member> findAll();
 
-    //JPQL + 엔티티 그래프
+    //JPQL + 엔티티 그래프(쿼리도 짜는데, fetch join 추가 하고 싶을때)
     @EntityGraph(attributePaths = {"team"})
     @Query("select m from Member m")
     List<Member> findMemberEntityGraph();
 
     //메서드 이름으로 쿼리에서 특히 편리하다.
     @EntityGraph(attributePaths = {"team"})
+//    @EntityGraph("Member.all")
     List<Member> findEntityGraphByUsername(String username);
 
+
+    //이거 사용하면 변경감지 안됨 -> 조회용이라고 해서, 스냅샷을 안만듬)
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
     Member findReadOnlyByUsername(String member1);
 
